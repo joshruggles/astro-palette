@@ -59,3 +59,200 @@ const navLinks = [
     </div>
   </nav>
 </header>
+
+<style is:global>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav {
+    /* Positioned so .nav-menu-panel can anchor to the whole bar — anchoring
+     to the hamburger itself pushes the panel off-screen on narrow
+     viewports (the button sits left of the nav-tools icon row). */
+    position: relative;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: var(--mono);
+  }
+
+  /* Blinking block cursor marks the current page in the nav. */
+  .nav-links a[aria-current="page"]::after,
+  .nav-menu-panel a[aria-current="page"]::after {
+    content: "";
+    display: inline-block;
+    width: 0.55ch;
+    height: 1em;
+    margin-left: 0.35ch;
+    vertical-align: middle;
+    transform: translateY(-0.08em);
+    background: var(--accent);
+    animation: type-cursor-blink 0.9s step-start infinite;
+  }
+
+  .nav-links a:hover,
+  .nav-links a[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .nav-menu {
+    display: none;
+    margin-left: auto;
+  }
+
+  .nav-menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.22rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--ink-soft);
+    cursor: pointer;
+    list-style: none;
+    transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+  }
+
+  .nav-menu-button::-webkit-details-marker { display: none; }
+  .nav-menu-button::marker { content: ""; }
+
+  .nav-menu-button span {
+    display: block;
+    width: 0.92rem;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .nav-menu-button:hover,
+  .nav-menu[open] .nav-menu-button {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+    background: var(--accent-soft);
+  }
+
+  .nav-menu-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 1.25rem;
+    z-index: 30;
+    display: grid;
+    min-width: min(18rem, calc(100vw - 2rem));
+    padding: 0.35rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.16);
+  }
+
+  .nav-menu-panel a {
+    border-radius: var(--radius-sm);
+    padding: 0.62rem 0.7rem;
+    color: var(--ink-soft);
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  .nav-menu-panel a:hover,
+  .nav-menu-panel a[aria-current="page"] {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .nav-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .nav-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--muted);
+    transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+  }
+
+  .nav-icon-link:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+    background: var(--accent-soft);
+  }
+
+  .nav-icon-link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Solid glyphs (GitHub, LinkedIn) take the fill; stroke-drawn icons
+   (email envelope, search magnifier) declare fill="none" and keep it. */
+  .nav-icon-link svg:not([fill="none"]) {
+    fill: currentColor;
+  }
+
+  button.nav-icon-link {
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+    .nav-menu { display: block; }
+  }
+
+  @media (max-width: 640px) {
+    .nav-tools {
+      gap: 0.35rem;
+    }
+
+    /* The brand + hamburger + icon row don't all fit on one line below
+     ~370px (iPhone SE and similar) — wrap the icon row onto its own
+     line instead of letting it overflow the viewport. Harmless on
+     wider phones where everything already fits on one row. */
+    .nav {
+      flex-wrap: wrap;
+      row-gap: 0.5rem;
+    }
+
+    .nav-tools {
+      flex-basis: 100%;
+      justify-content: flex-end;
+    }
+  }
+</style>

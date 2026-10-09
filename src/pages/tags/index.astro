@@ -27,3 +27,21 @@ const tags = getAllTags(await getCollection('blog'));
     </section>
   </main>
 </Layout>
+
+<style is:global>
+  .tag-count {
+    color: var(--muted-2);
+    font-weight: 400;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .tag-cloud .tag {
+    font-size: 0.78rem;
+    padding: 0.22rem 0.75rem;
+  }
+</style>
