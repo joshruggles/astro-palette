@@ -17,3 +17,64 @@ import { skills, slugifyTag } from '../lib/tags';
     ))}
   </div>
 </section>
+
+<style is:global>
+  /* Skills marquee at the bottom of init: one long strip of mono tags
+   scrolling continuously, faded at both edges. */
+  .skills-marquee {
+    /* Constrained to the content column so its top border lines up with
+     the section dividers above it. */
+    max-width: var(--max);
+    margin: 4.5rem auto 0;
+    padding: 1.2rem 1.25rem;
+    border-top: 1px solid var(--line);
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+
+  .skills-track {
+    display: flex;
+    width: max-content;
+    animation: skills-scroll 70s linear infinite;
+  }
+
+  /* Spacing lives on the items (not flex gap) so the track's second half is
+   exactly as wide as the first and the -50% loop point is invisible. */
+  .skills-item {
+    padding-right: 2.4rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+    transition: color 0.15s ease;
+  }
+
+  .skills-item:hover {
+    color: var(--accent);
+  }
+
+  .skills-marquee:hover .skills-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes skills-scroll {
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skills-track {
+      animation: none;
+      width: auto;
+      flex-wrap: wrap;
+      gap: 0.5rem 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .skills-marquee {
+      margin-top: 3rem;
+    }
+  }
+</style>

@@ -54,3 +54,81 @@ const personSchema = JSON.stringify({
     <SkillsMarquee />
   </main>
 </Layout>
+
+<style is:global>
+  /* Recent commits on main: the same branch-line tree as the post-page TOC.
+   One line per commit, node on the line, Init as the root at the bottom. */
+  .commit-tree {
+    display: grid;
+    gap: 1.15rem;
+    margin-left: 5px;
+    border-left: 2px solid var(--line);
+    font-family: var(--mono);
+  }
+
+  .commit-tree a {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem 1rem;
+    padding-left: 1.25rem;
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.45;
+    text-decoration: none;
+  }
+
+  .commit-tree a::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 0.28em;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--line-strong);
+    background: var(--bg);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .commit-tree a:hover {
+    color: var(--accent);
+  }
+
+  .commit-tree a:hover::before {
+    border-color: var(--accent);
+  }
+
+  /* The branch label heads the tree: filled node on the same line, like the
+   company labels once were. */
+  .commit-tree .commit-tree-head {
+    color: var(--accent);
+    font-size: 0.95rem;
+  }
+
+  .commit-tree .commit-tree-head::before {
+    left: -7px;
+    top: 0.24em;
+    width: 12px;
+    height: 12px;
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .commit-tree .commit-tree-head:hover {
+    text-decoration: underline;
+  }
+
+  .commit-tree-date {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .empty-note {
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+</style>

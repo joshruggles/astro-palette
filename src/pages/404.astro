@@ -21,3 +21,48 @@ import Layout from '../components/Layout.astro';
     </div>
   </main>
 </Layout>
+
+<style is:global>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.6rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius-md);
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+    transition: all 0.12s ease;
+  }
+
+  .button-primary {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .button-primary:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .button-secondary {
+    background: transparent;
+    border-color: var(--line-strong);
+    color: var(--ink-soft);
+  }
+
+  .button-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+  }
+</style>
