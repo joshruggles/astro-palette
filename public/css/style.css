@@ -1553,7 +1553,7 @@ button.nav-icon-link {
 
 @media (max-width: 860px) {
     .nav-links { display: none; }
-    .nav-menu { display: block; }
+    .nav-menu { display: flex; }
 
     .about-grid {
         display: block;
