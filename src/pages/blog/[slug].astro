@@ -195,3 +195,251 @@ const postSchema = JSON.stringify({
     document.addEventListener('astro:page-load', init);
   </script>
 </Layout>
+
+<style is:global>
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+    margin: 0 0 0.85rem;
+    color: color-mix(in srgb, var(--ink) 58%, var(--muted));
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  .post-meta > * + *::before {
+    content: "/";
+    margin-right: 0.55rem;
+    color: var(--line-strong);
+  }
+
+  .article-layout {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) minmax(0, 860px);
+    gap: clamp(2rem, 6vw, 4rem);
+    align-items: start;
+    padding-top: 4rem;
+    /* Sits directly under the sticky header's border — avoid a double line. */
+    border-top: 0;
+  }
+
+  .article-shell {
+    min-width: 0;
+  }
+
+  .article-toc {
+    position: sticky;
+    top: 6rem;
+    padding-top: 0.35rem;
+    color: color-mix(in srgb, var(--ink) 58%, var(--muted));
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  /* Git-tree TOC: a branch line with one node per section; the node of the
+   section currently in view fills with the accent color (scroll spy sets
+   aria-current on the links). */
+  .article-toc nav {
+    display: grid;
+    gap: 0.9rem;
+    margin-left: 5px;
+    border-left: 2px solid var(--line);
+  }
+
+  .article-toc a {
+    position: relative;
+    padding-left: 1.1rem;
+    color: color-mix(in srgb, var(--ink) 58%, var(--muted));
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  .article-toc a::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 0.22em;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--line-strong);
+    background: var(--bg);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .article-toc a:hover,
+  .article-toc a[aria-current="true"] {
+    color: var(--accent);
+  }
+
+  .article-toc a:hover::before {
+    border-color: var(--accent);
+  }
+
+  .article-toc a[aria-current="true"]::before {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .article-header {
+    margin-bottom: 2.35rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .article-header h1 {
+    max-width: 22ch;
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -0.055em;
+  }
+
+  .article-header p:last-child {
+    max-width: 680px;
+    margin: 1.2rem 0 0;
+    color: color-mix(in srgb, var(--ink) 68%, var(--muted));
+    font-size: 1.18rem;
+    line-height: 1.7;
+  }
+
+  .article-prose {
+    color: var(--ink);
+    font-size: 1.04rem;
+    line-height: 1.82;
+  }
+
+  .article-prose > *:first-child { margin-top: 0; }
+
+  .article-prose h1,
+  .article-prose h2,
+  .article-prose h3 {
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    font-family: var(--mono);
+    font-weight: 400;
+  }
+
+  .article-prose h1 {
+    margin: 2.3rem 0 1rem;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .article-prose h2 {
+    margin: 2.2rem 0 0.75rem;
+    font-size: clamp(1.55rem, 3vw, 2.2rem);
+  }
+
+  .article-prose h3 {
+    margin: 1.7rem 0 0.65rem;
+    font-size: 1.25rem;
+  }
+
+  .article-prose p,
+  .article-prose ul,
+  .article-prose ol {
+    margin: 1rem 0;
+  }
+
+  .article-prose ul,
+  .article-prose ol {
+    padding-left: 1.35rem;
+  }
+
+  .article-prose li + li { margin-top: 0.42rem; }
+
+  .article-prose blockquote {
+    margin: 1.2rem 0;
+    border-left: 2px solid color-mix(in srgb, var(--accent) 72%, var(--line));
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--bg-elevated) 46%, transparent);
+    padding: 0.72rem 0.95rem;
+    color: color-mix(in srgb, var(--ink) 76%, var(--muted));
+    font-size: 1.06rem;
+    font-weight: 560;
+    line-height: 1.7;
+  }
+
+  .article-prose blockquote p { margin: 0; }
+
+  .article-prose a {
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .article-prose code {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    color: var(--ink);
+    padding: 0.08rem 0.28rem;
+    font-size: 0.9em;
+  }
+
+  .article-prose pre {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    color: var(--ink);
+    padding: 1rem;
+  }
+
+  /* Shiki (theme: 'css-variables') token colors, mapped onto the palette
+   variables so syntax highlighting follows the active theme. */
+  :root {
+    --astro-code-foreground: var(--ink-soft);
+    --astro-code-background: var(--bg-elevated);
+    --astro-code-token-constant: var(--accent);
+    --astro-code-token-string: var(--term-str);
+    --astro-code-token-string-expression: var(--term-str);
+    --astro-code-token-comment: var(--muted-2);
+    --astro-code-token-keyword: var(--red);
+    --astro-code-token-parameter: var(--ink-soft);
+    --astro-code-token-function: var(--term-cmd);
+    --astro-code-token-punctuation: var(--muted);
+    --astro-code-token-link: var(--accent);
+  }
+
+  .article-prose pre code {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  .article-comments {
+    margin-top: 3.2rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 1040px) {
+    .article-layout {
+      display: block;
+      max-width: 860px;
+    }
+
+    .article-toc {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .article-layout {
+      padding-top: 2.25rem;
+    }
+  }
+</style>

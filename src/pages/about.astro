@@ -48,3 +48,89 @@ import SkillsMarquee from '../components/SkillsMarquee.astro';
     <SkillsMarquee />
   </main>
 </Layout>
+
+<style is:global>
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.4fr);
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* About card mirrors the Education sidebar card. */
+  .about-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    padding: 1.5rem;
+  }
+
+  .about-card h3 {
+    margin: 0 0 1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+
+  .about-prose p {
+    margin: 0 0 1.2rem;
+    max-width: 62ch;
+    color: color-mix(in srgb, var(--ink) 82%, var(--muted));
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .about-prose p:last-child {
+    margin-bottom: 0;
+  }
+
+  .sidebar-card {
+    position: sticky;
+    top: 6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    padding: 1.5rem;
+  }
+
+  .sidebar-card h3 {
+    margin: 0 0 1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+
+  .edu-entry {
+    margin-bottom: 1rem;
+  }
+
+  .edu-entry:last-child { margin-bottom: 0; }
+
+  .edu-degree {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+
+  .edu-school {
+    margin: 0.15rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 860px) {
+    .about-grid {
+      display: block;
+    }
+
+    .sidebar-card {
+      position: static;
+      margin-top: 3rem;
+    }
+  }
+</style>

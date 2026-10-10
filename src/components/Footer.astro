@@ -5,3 +5,19 @@ import { SITE_URL } from '../lib/site';
 <footer class="footer">
   <span>&copy; {new Date().getFullYear()} {new URL(SITE_URL).hostname}</span>
 </footer>
+
+<style is:global>
+  /* Full-bleed top border mirrors the header's bottom border, framing the
+   page; the content inside stays centered. */
+  .footer {
+    padding: 1.75rem 1.25rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-family: var(--mono);
+  }
+</style>

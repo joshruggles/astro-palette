@@ -30,3 +30,80 @@ const tags = post.data.tags.filter((tag) => slugifyTag(tag) !== '');
     </p>
   )}
 </article>
+
+<style is:global>
+  /* Lines act as separators between posts, not around the list —
+   the section border above and footer border below frame it already. */
+  .post-card + .post-card {
+    border-top: 1px solid var(--line);
+  }
+
+  /* Git-tag badge on the newest commit in the log. */
+  .tag-latest {
+    display: inline-block;
+    margin-left: 0.7rem;
+    padding: 0.12rem 0.6rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+    transform: translateY(-0.15em);
+  }
+
+  .post-card-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.45rem 0;
+    text-decoration: none;
+  }
+
+  .post-card h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: clamp(1.45rem, 3vw, 2.05rem);
+    font-family: var(--mono);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.055em;
+    transition: color 0.16s ease;
+  }
+
+  .post-card p {
+    max-width: 680px;
+    margin: 0.55rem 0 0;
+    color: color-mix(in srgb, var(--ink) 62%, var(--muted));
+    line-height: 1.55;
+  }
+
+  .post-card-meta {
+    margin: 0.4rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .post-card:hover h2 {
+    color: var(--accent);
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* On post cards the chips are a sibling of the card link, not a child
+   (anchors can't nest), so pull them up into the link's bottom padding
+   and restore the card's spacing below. The .post-card scope also beats
+   the `.post-card p` margin rule without needing !important. */
+  .post-card .post-tags {
+    margin: -0.85rem 0 0;
+    padding: 0 0 1.45rem;
+  }
+</style>
