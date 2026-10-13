@@ -7,8 +7,13 @@
 
 <div class="theme-overlay" id="theme-overlay" hidden>
   <div class="theme-overlay-panel" role="dialog" aria-label="Theme switcher" aria-modal="true">
+    <div class="search-input-row">
+      <span class="search-prompt" aria-hidden="true">$</span>
+      <input id="theme-input" type="search" autocomplete="off" spellcheck="false" aria-label="Filter themes" />
+      <span class="search-caret" aria-hidden="true"></span>
+    </div>
     <div class="theme-overlay-list" id="theme-overlay-list" role="listbox" aria-label="Themes">
-      <div class="theme-sep"><span>Dark</span></div>
+      <div class="theme-separator"><span>Dark</span></div>
       <button type="button" role="option" data-value="ayu">Ayu Dark</button>
       <button type="button" role="option" data-value="catppuccin">Catppuccin</button>
       <button type="button" role="option" data-value="dracula">Dracula</button>
@@ -28,7 +33,7 @@
       <button type="button" role="option" data-value="terminal">Terminal</button>
       <button type="button" role="option" data-value="tokyo-night">Tokyo Night</button>
       <button type="button" role="option" data-value="vesper">Vesper</button>
-      <div class="theme-sep"><span>Light</span></div>
+      <div class="theme-separator"><span>Light</span></div>
       <button type="button" role="option" data-value="alucard">Alucard</button>
       <button type="button" role="option" data-value="ayu-light">Ayu Light</button>
       <button type="button" role="option" data-value="catppuccin-latte">Catppuccin Latte</button>
@@ -42,6 +47,7 @@
       <button type="button" role="option" data-value="rose-pine-dawn">Rose Pine Dawn</button>
       <button type="button" role="option" data-value="solarized-light">Solarized Light</button>
       <button type="button" role="option" data-value="tokyo-night-day">Tokyo Day</button>
+      <p class="search-empty" id="theme-empty" hidden>No matching themes</p>
     </div>
     <div class="theme-overlay-footer">
       <span class="theme-overlay-actions">
@@ -56,7 +62,7 @@
 
   let controller: AbortController | undefined;
 
-  function initThemeSwitcher() {
+  function initThemeSwitcher(): void {
     controller?.abort();
     controller = new AbortController();
     const { signal } = controller;
@@ -65,68 +71,99 @@
     const list = document.getElementById('theme-overlay-list');
     const hintLabel = document.getElementById('theme-hint-label');
     const themeHint = document.getElementById('theme-hint');
-    const closeBtn = document.getElementById('theme-close-btn');
-    if (!overlay || !list || !themeHint || !closeBtn) return;
+    const closeButton = document.getElementById('theme-close-btn');
+    const input = document.getElementById('theme-input') as HTMLInputElement | null;
+    const emptyMessage = document.getElementById('theme-empty');
+    if (!overlay || !list || !themeHint || !closeButton || !input || !emptyMessage) return;
 
-    const options = Array.from(list.querySelectorAll<HTMLButtonElement>("[role='option']"));
+    const options: HTMLButtonElement[] = Array.from(list.querySelectorAll<HTMLButtonElement>("[role='option']"));
+    const separators: HTMLElement[] = Array.from(list.querySelectorAll<HTMLElement>('.theme-separator'));
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const saved = localStorage.getItem('site-palette') || '';
-    let committed = saved || defaultPalette();
+    let committed = saved || getDefaultPalette();
+    // The option highlighted with the arrow keys or the mouse. Focus stays
+    // in the input so typing keeps working while navigating.
+    let cursor: HTMLButtonElement | undefined;
 
-    function defaultPalette() {
+    function getDefaultPalette(): string {
       return media.matches ? DEFAULT_PALETTE.dark : DEFAULT_PALETTE.light;
     }
 
-    function setPalette(value: string) {
-      document.documentElement.setAttribute('data-palette', value || defaultPalette());
+    function setPalette(value: string): void {
+      document.documentElement.setAttribute('data-palette', value || getDefaultPalette());
     }
 
-    function updateUI(value: string) {
-      const activeValue = value || defaultPalette();
-      for (const opt of options) {
-        opt.setAttribute('aria-selected', String(opt.dataset.value === activeValue));
+    function updateUI(value: string): void {
+      const activeValue = value || getDefaultPalette();
+      for (const option of options) {
+        option.setAttribute('aria-selected', String(option.dataset.value === activeValue));
       }
-      const active = options.find((opt) => opt.dataset.value === activeValue);
+      const active = options.find((option) => option.dataset.value === activeValue);
       if (hintLabel && active) hintLabel.textContent = (active.textContent ?? '').trim();
     }
 
-    function openOverlay() {
+    function getVisibleOptions(): HTMLButtonElement[] {
+      return options.filter((option) => !option.hidden);
+    }
+
+    function filterOptions(query: string): void {
+      const needle = query.trim().toLowerCase();
+      for (const option of options) {
+        option.hidden = !(option.textContent ?? '').toLowerCase().includes(needle);
+      }
+      // Hide a Dark/Light heading when none of its themes match.
+      for (const separator of separators) {
+        let next = separator.nextElementSibling;
+        let hasVisibleOption = false;
+        while (next && !next.classList.contains('theme-separator')) {
+          if (next instanceof HTMLButtonElement && !next.hidden) hasVisibleOption = true;
+          next = next.nextElementSibling;
+        }
+        separator.hidden = !hasVisibleOption;
+      }
+      emptyMessage!.hidden = getVisibleOptions().length > 0;
+    }
+
+    function openOverlay(): void {
       if (!overlay) return;
       overlay.hidden = false;
       document.body.style.overflow = 'hidden';
-      committed = localStorage.getItem('site-palette') || defaultPalette();
+      committed = localStorage.getItem('site-palette') || getDefaultPalette();
+      input!.value = '';
+      cursor = undefined;
+      filterOptions('');
       updateUI(committed);
-      const active = list?.querySelector<HTMLElement>("[aria-selected='true']") ?? options[0];
-      active?.focus();
+      list?.querySelector<HTMLElement>("[aria-selected='true']")?.scrollIntoView({ block: 'nearest' });
+      input!.focus();
     }
 
-    function closeOverlay() {
+    function closeOverlay(): void {
       if (!overlay) return;
       overlay.hidden = true;
       document.body.style.overflow = '';
     }
 
-    function toggleOverlay() {
+    function toggleOverlay(): void {
       if (overlay?.hidden) openOverlay();
       else closeOverlay();
     }
 
-    function preview(index: number) {
-      const opt = options[index];
-      if (!opt) return;
-      setPalette(opt.dataset.value ?? '');
-      updateUI(opt.dataset.value ?? '');
-      opt.focus();
+    function preview(option: HTMLButtonElement | undefined): void {
+      if (!option) return;
+      cursor = option;
+      setPalette(option.dataset.value ?? '');
+      updateUI(option.dataset.value ?? '');
+      option.scrollIntoView({ block: 'nearest' });
     }
 
-    function commit(value: string) {
+    function commit(value: string): void {
       setPalette(value);
       localStorage.setItem('site-palette', value);
       updateUI(value);
       closeOverlay();
     }
 
-    function revert() {
+    function revert(): void {
       setPalette(committed);
       updateUI(committed);
       closeOverlay();
@@ -139,40 +176,51 @@
       }
     }, { signal });
 
-    options.forEach((opt, idx) => {
-      opt.addEventListener('click', () => commit(opt.dataset.value ?? ''), { signal });
-      opt.addEventListener('mouseenter', () => preview(idx), { signal });
+    options.forEach((option) => {
+      option.addEventListener('click', () => commit(option.dataset.value ?? ''), { signal });
+      option.addEventListener('mouseenter', () => preview(option), { signal });
     });
 
-    document.addEventListener('keydown', (e) => {
+    input.addEventListener('input', () => {
+      cursor = undefined;
+      filterOptions(input.value);
+    }, { signal });
+    input.parentElement?.addEventListener('click', () => input.focus(), { signal });
+
+    document.addEventListener('keydown', (event) => {
       if (overlay.hidden) return;
-      const idx = options.indexOf(document.activeElement as HTMLButtonElement);
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        preview(idx >= 0 ? Math.min(options.length - 1, idx + 1) : 0);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        preview(idx >= 0 ? Math.max(0, idx - 1) : options.length - 1);
-      } else if (e.key === 'Enter' && idx >= 0) {
-        e.preventDefault();
-        commit(options[idx]?.dataset.value ?? '');
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
+      const visibleOptions = getVisibleOptions();
+      const cursorIndex = cursor ? visibleOptions.indexOf(cursor) : -1;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+        const startIndex = step === 1 ? 0 : visibleOptions.length - 1;
+        const targetIndex = cursorIndex >= 0
+          ? Math.min(visibleOptions.length - 1, Math.max(0, cursorIndex + step))
+          : startIndex;
+        preview(visibleOptions[targetIndex]);
+      } else if (event.key === 'Enter') {
+        if (document.activeElement === closeButton) return;
+        const focused = visibleOptions.find((option) => option === document.activeElement);
+        const target = focused ?? cursor ?? visibleOptions[0];
+        if (!target) return;
+        event.preventDefault();
+        commit(target.dataset.value ?? '');
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
         revert();
-      } else if (e.key === 'Tab') {
+      } else if (event.key === 'Tab') {
         // Trap focus inside the dialog while it is open.
-        const focusables = [...options, closeBtn].filter(
-          (el): el is HTMLButtonElement | HTMLElement => el !== null,
-        );
+        const focusables: HTMLElement[] = [input, ...visibleOptions, closeButton];
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
         if (!first || !last) return;
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          (last as HTMLElement).focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          (first as HTMLElement).focus();
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
         }
       }
     }, { signal });
@@ -185,7 +233,7 @@
       themeHint.classList.add('is-seen');
     }, { once: true, signal });
     themeHint.addEventListener('click', toggleOverlay, { signal });
-    closeBtn.addEventListener('click', revert, { signal });
+    closeButton.addEventListener('click', revert, { signal });
     setPalette(saved);
     updateUI(saved);
   }
@@ -249,7 +297,7 @@
     border-radius: 1px;
   }
 
-  .theme-sep {
+  .theme-separator {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -263,7 +311,9 @@
     user-select: none;
   }
 
-  .theme-sep:first-child { margin-top: 0; }
+  .theme-separator:first-child { margin-top: 0; }
+
+  .theme-overlay-list [hidden] { display: none; }
 
   .theme-overlay-list button {
     display: flex;
