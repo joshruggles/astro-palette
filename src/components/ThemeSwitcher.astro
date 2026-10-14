@@ -130,11 +130,16 @@
       document.body.style.overflow = 'hidden';
       committed = localStorage.getItem('site-palette') || getDefaultPalette();
       input!.value = '';
-      cursor = undefined;
       filterOptions('');
       updateUI(committed);
-      list?.querySelector<HTMLElement>("[aria-selected='true']")?.scrollIntoView({ block: 'nearest' });
-      input!.focus();
+      // Start on the current theme, so Enter keeps it and the arrow keys
+      // move from it.
+      cursor = options.find((option) => option.dataset.value === committed);
+      cursor?.scrollIntoView({ block: 'nearest' });
+      // On touch screens, focusing the input opens the on-screen keyboard
+      // over the list; tapping the input row still focuses it.
+      if (window.matchMedia('(pointer: coarse)').matches) cursor?.focus();
+      else input!.focus();
     }
 
     function closeOverlay(): void {
@@ -182,8 +187,19 @@
     });
 
     input.addEventListener('input', () => {
-      cursor = undefined;
       filterOptions(input.value);
+      // Keep the highlighted theme while it still matches. Otherwise move the
+      // highlight to the first match, so Enter picks the theme that looks
+      // selected.
+      if (cursor && !cursor.hidden) return;
+      const firstMatch = getVisibleOptions()[0];
+      if (firstMatch) {
+        preview(firstMatch);
+      } else {
+        cursor = undefined;
+        setPalette(committed);
+        updateUI(committed);
+      }
     }, { signal });
     input.parentElement?.addEventListener('click', () => input.focus(), { signal });
 
